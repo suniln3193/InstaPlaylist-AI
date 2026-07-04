@@ -292,6 +292,8 @@ export default function Home() {
                   >
                     <option value="premium-dark">Premium Dark</option>
                     <option value="clean-minimal">Clean Minimal</option>
+                    <option value="bold-creator">Bold Creator</option>
+                    <option value="dark-3d-gradient">Dark 3D Gradient</option>
                   </select>
                 </div>
 

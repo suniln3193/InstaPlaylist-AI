@@ -132,6 +132,15 @@ export default function CarouselPreview({
         backgroundColor: "#08080a",
         cacheBust: false, // no cache busting needed, images are already inlined
         skipFonts: false,
+        width: 400,
+        height: 500,
+        style: {
+          transform: "scale(1)",
+          transformOrigin: "top left",
+          width: "400px",
+          height: "500px",
+          margin: "0",
+        },
       });
     } finally {
       // 4. Always restore original srcs and visibility
@@ -152,7 +161,7 @@ export default function CarouselPreview({
     if (!element) return;
     setIsExporting(true);
     try {
-      const dataUrl = await captureSlideCanvas(element, 3); // 3× = ultra-HD PNG
+      const dataUrl = await captureSlideCanvas(element, 2.7); // 2.7× on 400x500 = 1080x1350 (Native IG 4:5)
       const link = document.createElement("a");
       link.download = `slide_${index + 1}.png`;
       link.href = dataUrl;
@@ -172,16 +181,16 @@ export default function CarouselPreview({
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "px",
-        format: [800, 1000],
+        format: [1080, 1350],
       });
 
       for (let i = 0; i < slides.length; i++) {
         const element = slideRefs.current[i];
         if (!element) continue;
 
-        const imgData = await captureSlideCanvas(element, 2); // 2× = HD PDF
-        if (i > 0) pdf.addPage([800, 1000], "portrait");
-        pdf.addImage(imgData, "PNG", 0, 0, 800, 1000);
+        const imgData = await captureSlideCanvas(element, 2.7); // 2.7× = 1080x1350
+        if (i > 0) pdf.addPage([1080, 1350], "portrait");
+        pdf.addImage(imgData, "PNG", 0, 0, 1080, 1350);
       }
 
       pdf.save("instagram_carousel.pdf");
@@ -205,7 +214,7 @@ export default function CarouselPreview({
         if (!element) continue;
 
         setExportProgress(`Rendering slide ${i + 1} of ${slides.length}...`);
-        const dataUrl = await captureSlideCanvas(element, 3);
+        const dataUrl = await captureSlideCanvas(element, 2.7); // 2.7× = 1080x1350
 
         // Strip the data:image/png;base64, prefix
         const base64 = dataUrl.split(",")[1];
@@ -239,6 +248,256 @@ export default function CarouselPreview({
     const isCTA = index === slides.length - 1;
 
     const isMinimal = theme === "clean-minimal";
+    const isBoldCreator = theme === "bold-creator";
+    const isDark3DGradient = theme === "dark-3d-gradient";
+
+    if (isDark3DGradient) {
+      const emojis = ["🚀", "💡", "🎯", "💎", "🔥", "📈", "🛠️"];
+      const slideEmoji = isHook ? "🚀" : isCTA ? "🎁" : emojis[(index % emojis.length)];
+
+      return (
+        <div
+          ref={(el) => { slideRefs.current[index] = el; }}
+          className="relative w-full aspect-[4/5] flex flex-col overflow-hidden text-white font-sans tracking-tight"
+          style={{ width: "100%", maxWidth: "400px", margin: "0 auto", background: "linear-gradient(135deg, #020202, #070707, #020202)" }}
+        >
+          {/* Professional Dot Matrix Pattern */}
+          <div className="absolute inset-0 z-0 bg-[radial-gradient(rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:14px_14px] pointer-events-none" />
+          
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-yellow-500/5 via-transparent to-transparent z-0 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-500/5 via-transparent to-transparent z-0 pointer-events-none" />
+          
+          {/* Header */}
+          <div className="absolute top-8 left-8 right-8 z-20 flex justify-between items-center text-[10px] uppercase tracking-widest font-black">
+             <div className="flex items-center space-x-2 bg-[#050505]/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5 shadow-lg">
+               {/* eslint-disable-next-line @next/next/no-img-element */}
+               <img src="/brand-avatar.jpg" alt="Avatar" className="w-5 h-5 rounded-full border border-white/10 object-cover" />
+               <span className="text-zinc-300">@sunilcodecraft</span>
+             </div>
+             <div className="flex space-x-1.5 bg-[#050505]/80 px-3 py-2 rounded-full border border-white/5">
+               {slides.map((_, i) => (
+                  <div key={i} className={`h-1.5 rounded-full transition-all ${i === index ? 'w-5 bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.5)]' : 'w-1.5 bg-white/10'}`} />
+               ))}
+             </div>
+          </div>
+
+          {/* Body */}
+          <div className="absolute top-[64px] bottom-[64px] left-8 right-8 z-10 flex flex-col justify-center">
+            
+            <div className="relative mb-5 text-left z-20">
+              {/* 3D Emoji Icon perfectly aligned above title */}
+              <div className="text-[2.5rem] leading-none drop-shadow-[0_15px_15px_rgba(0,0,0,1)] mb-3">{slideEmoji}</div>
+              
+              <h2 className={`font-extrabold leading-[1.1] tracking-tight drop-shadow-2xl text-white ${isHook ? 'text-[2.5rem]' : 'text-[1.75rem]'}`}>
+                {slide.title}
+              </h2>
+            </div>
+
+            {!isCTA && (slide.description || (slide.bullets && slide.bullets.length > 0)) && (
+               <div className="bg-[#050505]/90 backdrop-blur-3xl rounded-2xl p-6 shadow-[0_20px_40px_-15px_rgba(0,0,0,1),inset_0_2px_10px_rgba(255,255,255,0.02)] border border-white/5 relative overflow-hidden">
+                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-yellow-400/5 rounded-full blur-3xl pointer-events-none" />
+                  
+                  {slide.description && (
+                    <p className="font-bold text-xs sm:text-[13px] leading-relaxed text-zinc-300 text-left drop-shadow-md">
+                      {slide.description}
+                    </p>
+                  )}
+                  {slide.bullets && slide.bullets.length > 0 && (
+                    <ul className="mt-5 space-y-4">
+                      {slide.bullets.map((b, i) => (
+                        <li key={i} className="flex items-start text-[11px] font-bold text-zinc-200 text-left">
+                           <div className="w-6 h-6 bg-yellow-400/10 text-yellow-400 border border-yellow-400/20 rounded-full flex items-center justify-center shrink-0 mr-3 shadow-[inset_0_2px_5px_rgba(250,204,21,0.1)]">
+                             {i + 1}
+                           </div>
+                           <span className="mt-0.5 leading-snug drop-shadow-sm">{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+               </div>
+            )}
+
+            {isCTA && (
+               <div className="flex flex-col items-start space-y-6 mt-4 relative z-20">
+                 <div className="bg-yellow-400/90 backdrop-blur-2xl border border-yellow-300 rounded-2xl p-8 text-left shadow-[0_20px_40px_-15px_rgba(250,204,21,0.2),inset_0_2px_15px_rgba(255,255,255,0.2)] w-full">
+                    <p className="text-black/80 font-black uppercase tracking-widest text-[10px] mb-2 drop-shadow-sm">Download Now</p>
+                    <p className="text-black font-black text-2xl uppercase drop-shadow-md">Comment "{keyword || "CODE"}"</p>
+                 </div>
+               </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          {!isCTA && (
+            <div className="absolute bottom-8 left-8 right-8 z-20 flex justify-between items-center">
+               <div className="w-full h-1.5 bg-black/50 border border-white/10 rounded-full overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
+                 <div className="h-full bg-yellow-400 rounded-full shadow-[0_0_10px_rgba(250,204,21,0.8)]" style={{ width: `${((index + 1) / slides.length) * 100}%` }} />
+               </div>
+               <span className="ml-5 text-[10px] font-black uppercase tracking-widest text-zinc-400 whitespace-nowrap">Swipe ➔</span>
+            </div>
+          )}
+          {isCTA && (
+            <div className="absolute bottom-8 left-8 right-8 z-20 flex justify-center">
+               <span className="text-zinc-400 font-black uppercase tracking-widest text-[10px] flex items-center">
+                 <span className="text-lg mr-2 drop-shadow-md">📌</span> Save for reference
+               </span>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (isBoldCreator) {
+      const words = slide.title.split(" ");
+      const split1 = Math.max(1, Math.floor(words.length * 0.33));
+      const split2 = Math.max(split1 + 1, Math.floor(words.length * 0.66));
+      
+      const part1 = words.slice(0, split1).join(" ");
+      const part2 = words.slice(split1, split2).join(" ");
+      const part3 = words.slice(split2).join(" ");
+
+      return (
+        <div
+          ref={(el) => {
+            slideRefs.current[index] = el;
+          }}
+          className="relative w-full aspect-[4/5] flex flex-col overflow-hidden bg-[#070707] text-white border-zinc-800 select-none font-sans tracking-tight"
+          style={{ width: "100%", maxWidth: "400px", margin: "0 auto" }}
+        >
+          {/* Dot Pattern Background Overlay on Edges */}
+          <div className="absolute inset-y-0 left-0 w-20 bg-[radial-gradient(#444_2px,transparent_2px)] [background-size:12px_12px] opacity-20 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-20 bg-[radial-gradient(#444_2px,transparent_2px)] [background-size:12px_12px] opacity-20 pointer-events-none" />
+          
+          {/* Asset Image Layer (placed dynamically behind) */}
+          {slide.imageUrl && (
+             <div className="absolute bottom-0 right-0 w-full h-full z-0 opacity-20 mix-blend-screen pointer-events-none" style={{ maskImage: "linear-gradient(to top, black, transparent)" }}>
+               {/* eslint-disable-next-line @next/next/no-img-element */}
+               <img src={slide.imageUrl} alt="Background Asset" className="w-full h-full object-cover" />
+             </div>
+          )}
+
+          {/* Header */}
+          <div className="absolute top-6 left-6 right-6 z-20 flex justify-between items-start">
+             <div className="bg-yellow-400 text-black font-black text-2xl px-3 py-1.5 rounded-md leading-none shadow-[3px_3px_0_rgba(255,255,255,0.1)]">
+               {slide.subtitle ? slide.subtitle.substring(0, 2).toUpperCase() : "JS"}
+             </div>
+             <div className="text-white font-bold text-[11px] tracking-widest mt-3 shadow-black drop-shadow-md">
+               @sunilcodecraft
+             </div>
+             <div className="flex flex-col items-end">
+               <div className="text-yellow-400 font-black text-3xl leading-none">
+                 0{index + 1}<span className="text-white text-xl">/0{slides.length}</span>
+               </div>
+               <div className="flex space-x-1.5 mt-2">
+                 {slides.map((_, i) => (
+                    <div key={i} className={`w-1.5 h-1.5 rounded-full ${i === index ? 'bg-yellow-400' : 'bg-zinc-600'}`} />
+                 ))}
+               </div>
+             </div>
+          </div>
+
+          {/* Main Body */}
+          <div className="absolute top-[80px] bottom-6 left-6 right-6 z-10 flex flex-col justify-center">
+            
+            {/* Title (The Hook) */}
+            <div className={`mb-6 z-20 relative ${isHook ? '-mt-4' : ''}`}>
+               {isHook ? (
+                 <h2 className="font-black text-[3rem] leading-[0.95] tracking-tighter uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]">
+                   <span className="text-white">{part1}</span><br/>
+                   <span className="text-yellow-400">{part2}</span><br/>
+                   <span className="inline-block relative mt-2 max-w-full">
+                     <span className="absolute inset-0 bg-blue-600 -skew-x-[8deg] -z-10 scale-105 shadow-xl"></span>
+                     <span className="text-white relative z-10 px-2 block">{part3}</span>
+                   </span>
+                 </h2>
+               ) : (
+                 <h2 className="font-black text-3xl leading-[1.05] tracking-tighter uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]">
+                   <span className="inline-block relative">
+                     <span className="absolute inset-0 bg-blue-600 -skew-x-[8deg] -z-10 scale-105 shadow-xl"></span>
+                     <span className="text-white relative z-10 px-2 block">{slide.title}</span>
+                   </span>
+                 </h2>
+               )}
+            </div>
+
+            {/* Description & Bullets */}
+            {!isCTA && (slide.description || (slide.bullets && slide.bullets.length > 0)) && (
+               <div className="relative mt-4">
+                 {/* Floating badge */}
+                 <div className="absolute -top-5 -left-3 z-30 flex items-center bg-[#070707] border-2 border-yellow-400 text-yellow-400 font-black px-3 py-1 rounded-lg shadow-2xl skew-y-[-2deg]">
+                   <span className="bg-yellow-400 text-black rounded-full w-5 h-5 flex items-center justify-center mr-2 text-sm font-bold">?</span>
+                   <span className="uppercase text-[9px] leading-[1.1] tracking-wider">Most Asked<br/>Question</span>
+                 </div>
+                 
+                 {/* Card */}
+                 <div className="bg-[#070707]/95 border-2 border-zinc-700/80 rounded-xl p-5 pt-7 shadow-[0_10px_30px_rgba(0,0,0,0.8)] relative overflow-hidden z-20">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 rounded-full blur-3xl" />
+                    
+                    {slide.description && (
+                      <p className="text-white font-bold text-sm leading-snug tracking-wide">
+                        {slide.description}
+                      </p>
+                    )}
+
+                    {slide.bullets && slide.bullets.length > 0 && (
+                      <ul className="mt-3 space-y-2">
+                        {slide.bullets.map((b, i) => (
+                          <li key={i} className="flex items-start text-[11px] font-bold text-zinc-300">
+                             <div className="mt-1 mr-2 w-1.5 h-3 bg-yellow-400 skew-x-[-15deg] shrink-0"></div>
+                             <span>{b}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                 </div>
+               </div>
+            )}
+            
+            {/* CTA Final Slide */}
+            {isCTA && (
+               <div className="flex flex-col items-center justify-center space-y-8 z-30 mt-4">
+                 <div className="bg-[#070707] border-2 border-yellow-400 p-6 rounded-2xl shadow-2xl text-center w-full relative">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-400 text-black px-4 py-1 rounded-full font-black text-xs uppercase tracking-widest shadow-lg">
+                      Action Required
+                    </div>
+                    <p className="text-zinc-300 text-xs font-bold uppercase tracking-widest mb-3 mt-2">Get the resource pack</p>
+                    <p className="text-white font-black text-2xl uppercase leading-tight">Comment <span className="text-yellow-400">"{keyword || "CODE"}"</span></p>
+                 </div>
+               </div>
+            )}
+            
+            {/* Bottom Swipe Button */}
+            {!isCTA && (
+              <div className="absolute bottom-0 left-0 right-0 flex items-center space-x-3">
+                 {/* eslint-disable-next-line @next/next/no-img-element */}
+                 <img src="/brand-avatar.jpg" alt="Brand" className="w-10 h-10 rounded-full border-2 border-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)] object-cover" />
+                 
+                 <div className="bg-blue-600 w-full py-2.5 px-4 rounded-lg shadow-lg flex items-center justify-between">
+                    <span className="text-white font-black text-[11px] uppercase tracking-wider">Swipe to Find Out</span>
+                    <div className="bg-white text-blue-600 rounded-full w-5 h-5 flex items-center justify-center font-bold text-[10px]">➔</div>
+                 </div>
+              </div>
+            )}
+            
+            {/* CTA specific bottom button */}
+            {isCTA && (
+              <div className="absolute bottom-0 left-0 right-0 flex items-center space-x-3">
+                 <div className="bg-blue-600 w-full py-2.5 px-4 rounded-lg shadow-lg flex items-center justify-between">
+                    <span className="text-white font-black text-[11px] uppercase tracking-wider">Save For Later</span>
+                    <div className="text-white font-black text-sm">📌</div>
+                 </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Floating Asset (Bottom Right) */}
+          <div className="absolute bottom-16 right-4 z-40">
+             {/* eslint-disable-next-line @next/next/no-img-element */}
+             <img src="/brand-avatar.jpg" alt="Asset" className="w-16 h-16 rounded-full border-4 border-white object-cover shadow-2xl drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] bg-white" />
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div
