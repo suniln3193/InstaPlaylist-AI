@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+:root {
+  --background: #08080a;
+  --foreground: #f4f4f5;
+  --card-bg: #121215;
+  --card-border: #1f1f23;
+  --accent-yellow: #facc15;
+  --accent-yellow-glow: rgba(250, 204, 21, 0.15);
+  --muted-text: #a1a1aa;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card-bg);
+  --color-border: var(--card-border);
+  --color-accent: var(--accent-yellow);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-yellow);
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(18, 18, 21, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+}
+
+/* Pulsing text cursor */
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  from, to { border-color: transparent }
+  50% { border-color: var(--accent-yellow); }
+}
+
+/* Glow effects */
+.glow-accent {
+  box-shadow: 0 0 20px var(--accent-yellow-glow);
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
+}
