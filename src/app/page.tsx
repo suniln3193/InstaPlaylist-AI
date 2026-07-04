@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Sparkles, Settings, Eye, Send, ShieldAlert, Cpu } from "lucide-react";
-import { CAROUSEL_TEMPLATES } from "@/lib/templates";
 import CarouselPreview from "@/components/CarouselPreview";
 import SlideEditor from "@/components/SlideEditor";
 import PublishPack from "@/components/PublishPack";
@@ -33,7 +32,7 @@ export default function Home() {
   const [playlist, setPlaylist] = useState("Developer Hacks");
   const [keyword, setKeyword] = useState("CODE");
   const [slideCount, setSlideCount] = useState(6);
-  const [templateId, setTemplateId] = useState("things-illegal");
+  const [theme, setTheme] = useState("premium-dark");
 
   // API Config
   const [apiKey, setApiKey] = useState("");
@@ -95,7 +94,7 @@ export default function Home() {
       const carouselRes = await fetch("/api/generate-carousel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, playlist, keyword, slideCount, templateId, apiKey, model }),
+        body: JSON.stringify({ topic, playlist, keyword, slideCount, apiKey, model }),
       });
 
       const carouselData = await carouselRes.json();
@@ -163,40 +162,47 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#08080a] text-zinc-100 selection:bg-yellow-400 selection:text-black pb-24">
       {/* Header */}
-      <header className="border-b border-zinc-900 bg-zinc-950/40 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-yellow-500 to-yellow-300 flex items-center justify-center shadow-lg shadow-yellow-500/20">
-              <Sparkles className="w-5 h-5 text-black" />
+      <header className="sticky top-6 z-50 px-4 md:px-6 w-full">
+        <div className="max-w-7xl mx-auto rounded-2xl border border-white/5 bg-zinc-950/60 backdrop-blur-xl shadow-2xl p-3 flex items-center justify-between">
+          <div className="flex items-center space-x-4 group cursor-pointer">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-zinc-900 to-zinc-800 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] border border-white/5 group-hover:scale-105 transition-transform duration-300">
+              <Sparkles className="w-5 h-5 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" />
             </div>
             <div>
-              <h1 className="text-md font-extrabold uppercase tracking-widest text-white">InstaPlaylist AI</h1>
-              <p className="text-[10px] text-zinc-500 font-mono">@sunilcodecraft Engine</p>
+              <h1 className="text-sm font-black tracking-widest text-white uppercase">
+                InstaPlaylist <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-200">AI</span>
+              </h1>
+              <p className="text-[9px] text-zinc-500 font-mono tracking-widest uppercase">@sunilcodecraft Engine</p>
             </div>
           </div>
-          <div className="flex items-center space-x-2 font-mono text-[10px] text-zinc-500">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-ping"></span>
-            <span>SYSTEM ACTIVE</span>
+          <div className="flex items-center px-3 py-1.5 rounded-lg bg-black/40 border border-white/5 shadow-inner">
+            <div className="relative flex h-2 w-2 mr-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </div>
+            <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest font-bold">System Active</span>
           </div>
         </div>
       </header>
 
       {/* Main Grid */}
-      <div className="max-w-7xl mx-auto px-6 mt-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 mt-8 md:mt-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
 
           {/* ── LEFT PANEL ── */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-3 space-y-6 md:space-y-8">
 
             {/* API Settings */}
-            <div className="glass-panel border border-zinc-800 rounded-2xl p-5 space-y-4">
-              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center space-x-2">
-                <Settings className="w-4 h-4 text-yellow-400" />
-                <span>API Settings</span>
+            <div className="bg-zinc-950/60 backdrop-blur-2xl border border-white/5 rounded-3xl p-6 shadow-2xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center space-x-2 mb-6">
+                <Settings className="w-3.5 h-3.5 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" />
+                <span>Engine Configuration</span>
               </h3>
-              <div className="space-y-3">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+              
+              <div className="space-y-5 relative z-10">
+                <div className="space-y-2">
+                  <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
                     OpenRouter API Key (Optional) {isClientSideKey && "🔑"}
                   </label>
                   <input
@@ -204,22 +210,23 @@ export default function Home() {
                     placeholder="Leave blank for Free Keyless Mode"
                     value={apiKey}
                     onChange={(e) => saveKeyToLocal(e.target.value)}
-                    className="w-full bg-zinc-950/80 border border-zinc-800 focus:border-yellow-400/50 rounded-xl px-3 py-2 text-xs text-white focus:outline-none transition-all font-mono"
+                    className="w-full min-h-[44px] bg-black/40 border border-white/5 focus:border-yellow-400/50 focus:bg-zinc-900/60 focus:ring-2 focus:ring-yellow-400/20 rounded-xl px-4 py-3 text-xs text-white focus:outline-none transition-all font-mono placeholder:text-zinc-700"
                   />
                   <p className="text-[9px] text-zinc-500 leading-normal">
                     {!apiKey ? (
-                      <span className="text-yellow-400/80 font-semibold">⚡ Running in 100% Free Keyless Mode (Pollinations.ai)</span>
+                      <span className="text-yellow-400/80 font-semibold flex items-center"><Sparkles className="w-3 h-3 mr-1"/> Running in Free Keyless Mode</span>
                     ) : (
                       <span>Using custom OpenRouter key (stored locally).</span>
                     )}
                   </p>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Model (Free Tier)</label>
+                
+                <div className="space-y-2">
+                  <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Inference Model</label>
                   <select
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs font-semibold rounded-xl px-3 py-2 focus:border-yellow-400/50 focus:outline-none"
+                    className="w-full min-h-[44px] bg-black/40 border border-white/5 text-zinc-300 text-xs font-semibold rounded-xl px-4 py-3 focus:border-yellow-400/50 focus:bg-zinc-900/60 focus:ring-2 focus:ring-yellow-400/20 focus:outline-none transition-all appearance-none"
                   >
                     <option value="google/gemma-2-9b-it:free">google/gemma-2-9b-it:free</option>
                     <option value="meta-llama/llama-3-8b-instruct:free">meta-llama/llama-3-8b-instruct:free</option>
@@ -230,68 +237,71 @@ export default function Home() {
             </div>
 
             {/* Carousel Prompts */}
-            <div className="glass-panel border border-zinc-800 rounded-2xl p-5 space-y-4">
-              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center space-x-2">
-                <Cpu className="w-4 h-4 text-yellow-400" />
-                <span>Carousel Prompts</span>
+            <div className="bg-zinc-950/60 backdrop-blur-2xl border border-white/5 rounded-3xl p-6 shadow-2xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center space-x-2 mb-6">
+                <Cpu className="w-3.5 h-3.5 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" />
+                <span>Carousel Parameters</span>
               </h3>
 
-              <div className="space-y-4">
+              <div className="space-y-5 relative z-10">
                 {/* Topic */}
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Topic *</label>
+                <div className="space-y-2">
+                  <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Topic *</label>
                   <input
                     type="text"
-                    placeholder="e.g. VS Code Extensions for AI Speed"
+                    placeholder="e.g. Next.js App Router Masterclass"
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
-                    className="w-full bg-zinc-950/80 border border-zinc-800 focus:border-yellow-400/50 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none transition-all"
+                    className="w-full min-h-[44px] bg-black/40 border border-white/5 focus:border-yellow-400/50 focus:bg-zinc-900/60 focus:ring-2 focus:ring-yellow-400/20 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none transition-all placeholder:text-zinc-700"
                   />
                 </div>
 
                 {/* Playlist Name */}
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Playlist Name</label>
+                <div className="space-y-2">
+                  <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Category Badge</label>
                   <input
                     type="text"
                     value={playlist}
+                    placeholder="e.g. System Design"
                     onChange={(e) => setPlaylist(e.target.value)}
-                    className="w-full bg-zinc-950/80 border border-zinc-800 focus:border-yellow-400/50 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none transition-all"
+                    className="w-full min-h-[44px] bg-black/40 border border-white/5 focus:border-yellow-400/50 focus:bg-zinc-900/60 focus:ring-2 focus:ring-yellow-400/20 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none transition-all placeholder:text-zinc-700"
                   />
                 </div>
 
-                {/* CTA Keyword (full width — episode removed) */}
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">CTA Keyword</label>
+                {/* CTA Keyword */}
+                <div className="space-y-2">
+                  <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">CTA Keyword</label>
                   <input
                     type="text"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
                     placeholder="e.g. CODE"
-                    className="w-full bg-zinc-950/80 border border-zinc-800 focus:border-yellow-400/50 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none transition-all font-mono"
+                    className="w-full min-h-[44px] bg-black/40 border border-white/5 focus:border-yellow-400/50 focus:bg-zinc-900/60 focus:ring-2 focus:ring-yellow-400/20 rounded-xl px-4 py-3 text-sm font-bold text-white focus:outline-none transition-all font-mono placeholder:text-zinc-700 uppercase"
                   />
                 </div>
 
-                {/* Template Preset */}
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Template Preset</label>
+                {/* Visual Theme Selector */}
+                <div className="space-y-2">
+                  <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Visual Theme</label>
                   <select
-                    value={templateId}
-                    onChange={(e) => setTemplateId(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs font-semibold rounded-xl px-3.5 py-2.5 focus:border-yellow-400/50 focus:outline-none"
+                    value={theme}
+                    onChange={(e) => setTheme(e.target.value)}
+                    className="w-full min-h-[44px] bg-black/40 border border-white/5 text-zinc-300 text-sm font-semibold rounded-xl px-4 py-3 focus:border-yellow-400/50 focus:bg-zinc-900/60 focus:ring-2 focus:ring-yellow-400/20 focus:outline-none transition-all appearance-none cursor-pointer"
                   >
-                    {CAROUSEL_TEMPLATES.map((t) => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
+                    <option value="premium-dark">Premium Dark</option>
+                    <option value="clean-minimal">Clean Minimal</option>
                   </select>
                 </div>
 
                 {/* Slides Count */}
-                <div className="space-y-1.5">
-                  <div className="flex justify-between items-center text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-                    <span>Slides Count</span>
-                    <span className="text-yellow-400 font-mono">{slideCount} Slides</span>
+                <div className="space-y-4 pt-2">
+                  <div className="flex justify-between items-center text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                    <span>Deck Length</span>
+                    <span className="bg-yellow-400/10 text-yellow-400 px-2 py-0.5 rounded text-[10px] font-mono border border-yellow-400/20">
+                      {slideCount} Slides
+                    </span>
                   </div>
                   <input
                     type="range"
@@ -299,33 +309,39 @@ export default function Home() {
                     max="10"
                     value={slideCount}
                     onChange={(e) => setSlideCount(Number(e.target.value))}
-                    className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-yellow-400"
+                    className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-yellow-400 outline-none focus:ring-2 focus:ring-yellow-400/20"
                   />
                 </div>
 
                 {/* Generate Button */}
-                <button
-                  disabled={isLoading}
-                  onClick={handleGenerate}
-                  className="w-full bg-gradient-to-r from-yellow-400 to-yellow-300 text-black font-extrabold text-xs uppercase tracking-widest py-3 px-4 rounded-xl shadow-lg hover:shadow-yellow-500/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center space-x-2"
-                >
-                  <Sparkles className="w-4 h-4 fill-black" />
-                  <span>{isLoading ? "Generating Package..." : "Generate Carousel Bundle"}</span>
-                </button>
+                <div className="pt-4">
+                  <button
+                    disabled={isLoading}
+                    onClick={handleGenerate}
+                    className="w-full min-h-[52px] bg-gradient-to-r from-yellow-400 to-yellow-300 text-black font-extrabold text-[11px] uppercase tracking-widest py-3 px-4 rounded-xl shadow-[0_0_20px_rgba(250,204,21,0.2)] hover:shadow-[0_0_30px_rgba(250,204,21,0.4)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center space-x-2"
+                  >
+                    {isLoading ? (
+                      <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 fill-black" />
+                    )}
+                    <span>{isLoading ? "Generating Deck..." : "Generate Deck"}</span>
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Error */}
             {error && (
-              <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-200 text-xs rounded-xl space-y-2">
+              <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-200 text-xs rounded-2xl shadow-lg backdrop-blur-xl space-y-2">
                 <div className="flex items-start space-x-2">
                   <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
-                  <span>{error}</span>
+                  <span className="font-medium leading-relaxed">{error}</span>
                 </div>
                 {debugRaw && (
-                  <details className="mt-2">
-                    <summary className="cursor-pointer text-zinc-500 text-[10px] font-mono hover:text-zinc-300">▶ Show AI raw output (debug)</summary>
-                    <pre className="mt-2 text-[10px] text-zinc-400 bg-zinc-950 p-3 rounded-lg overflow-auto max-h-40 font-mono whitespace-pre-wrap">{debugRaw}</pre>
+                  <details className="mt-3">
+                    <summary className="cursor-pointer text-zinc-500 text-[10px] font-mono hover:text-zinc-300 tracking-wider">▶ SHOW TRACE</summary>
+                    <pre className="mt-2 text-[10px] text-zinc-400 bg-black/50 border border-white/5 p-3 rounded-xl overflow-auto max-h-40 font-mono whitespace-pre-wrap">{debugRaw}</pre>
                   </details>
                 )}
               </div>
@@ -333,32 +349,32 @@ export default function Home() {
           </div>
 
           {/* ── RIGHT PANEL ── */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-9 space-y-6">
 
             {/* 2-Tab Header */}
-            <div className="flex space-x-2 border-b border-zinc-900 pb-3">
+            <div className="flex space-x-2 bg-zinc-950/60 backdrop-blur-2xl border border-white/5 rounded-2xl p-2 w-max shadow-xl">
               <button
                 onClick={() => setActiveTab("carousel")}
-                className={`px-4 py-2 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center space-x-1.5 ${
+                className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center space-x-2 ${
                   activeTab === "carousel"
-                    ? "border-yellow-400 text-yellow-400"
-                    : "border-transparent text-zinc-500 hover:text-zinc-300"
+                    ? "bg-yellow-400 text-black shadow-lg shadow-yellow-500/20"
+                    : "bg-transparent text-zinc-500 hover:text-zinc-300 hover:bg-white/5"
                 }`}
               >
-                <Eye className="w-3.5 h-3.5" />
+                <Eye className="w-4 h-4" />
                 <span>Carousel Simulator</span>
               </button>
 
               <button
                 disabled={slides.length === 0}
                 onClick={() => setActiveTab("publish")}
-                className={`px-4 py-2 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center space-x-1.5 disabled:opacity-30 disabled:pointer-events-none ${
+                className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center space-x-2 disabled:opacity-30 disabled:pointer-events-none ${
                   activeTab === "publish"
-                    ? "border-yellow-400 text-yellow-400"
-                    : "border-transparent text-zinc-500 hover:text-zinc-300"
+                    ? "bg-yellow-400 text-black shadow-lg shadow-yellow-500/20"
+                    : "bg-transparent text-zinc-500 hover:text-zinc-300 hover:bg-white/5"
                 }`}
               >
-                <Send className="w-3.5 h-3.5" />
+                <Send className="w-4 h-4" />
                 <span>Publish Pack</span>
                 {slides.length > 0 && caption && (
                   <span className="ml-1 w-2 h-2 rounded-full bg-green-500 animate-pulse" />
@@ -389,6 +405,7 @@ export default function Home() {
                       <CarouselPreview
                         slides={slides}
                         keyword={keyword}
+                        theme={theme}
                         onUpdateSlideImage={handleUpdateSlideImage}
                       />
                     </div>

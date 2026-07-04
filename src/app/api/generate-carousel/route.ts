@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { generateText, cleanAndParseJson } from "@/lib/openrouter";
-import { CAROUSEL_TEMPLATES } from "@/lib/templates";
-
 const MAX_RETRIES = 3;
 
 /** Normalize raw parsed value into a clean slides array */
@@ -22,7 +20,7 @@ function extractSlidesArray(parsed: any): any[] {
 function normalizeSlide(slide: any, idx: number, topic: string) {
   return {
     slide_number: slide.slide_number ?? idx + 1,
-    title: (slide.title ?? `Slide ${idx + 1}`).toString().toUpperCase(),
+    title: (slide.title ?? `Slide ${idx + 1}`).toString(),
     subtitle: slide.subtitle ?? "",
     description: slide.description ?? "",
     bullets: Array.isArray(slide.bullets) ? slide.bullets.filter(Boolean) : [],
@@ -39,7 +37,6 @@ export async function POST(req: Request) {
       playlist,
       keyword,
       slideCount = 6,
-      templateId = "things-illegal",
       apiKey,
       model,
     } = body;
@@ -48,7 +45,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Topic is required" }, { status: 400 });
     }
 
-    const template = CAROUSEL_TEMPLATES.find((t) => t.id === templateId) || CAROUSEL_TEMPLATES[0];
     const ctaWord = keyword || "CODE";
 
     // Two prompt variants — if one fails, retry with the other
@@ -56,20 +52,22 @@ export async function POST(req: Request) {
       // Variant A: compact schema example
       {
         system: `Instagram carousel creator for @sunilcodecraft. Return ONLY a JSON array, nothing else.
-Format: [{"slide_number":1,"title":"TITLE","subtitle":"sub 🔥","description":"one sentence","bullets":["a","b","c"],"visual_suggestion":"layout","image_prompt":"${topic} dark bg yellow accents"}]
-Slide 1 title must start with "${template.hookPrefix}:" and include "${topic}".
-Slides 2-${slideCount - 2}: one real tool/tip per slide about "${topic}".
-Slide ${slideCount - 1}: tease coming content ("${template.curiositySlideText}").
+Format: [{"slide_number":1,"title":"Title Case","subtitle":"Sub","description":"one sentence","bullets":["a","b","c"],"visual_suggestion":"layout","image_prompt":"${topic} dark bg yellow accents"}]
+CRITICAL TONE GUIDELINES: The content MUST be highly professional, deeply researched, and educational. NO CLICKBAIT. Titles should be clean, authoritative, and properly cased (e.g., "The Architecture of X", "Advanced Patterns in Y").
+CRITICAL LENGTH GUIDELINES: Keep text EXTREMELY CONCISE. Descriptions must be 1 short sentence. Bullets must be 4-6 words maximum. This must fit on a small mobile slide.
+Slide 1 title must introduce "${topic}" professionally.
+Slides 2-${slideCount - 2}: highly technical, accurate, real-world tools/tips about "${topic}".
+Slide ${slideCount - 1}: tease upcoming advanced concepts for the next post.
 Slide ${slideCount}: CTA, ask viewer to comment "${ctaWord}".`,
-        user: `Generate ${slideCount} slides for topic: "${topic}". Style: ${template.name}.`,
+        user: `Generate ${slideCount} professional slides for topic: "${topic}".`,
       },
       // Variant B: numbered instructions, no schema
       {
         system: `You output ONLY valid JSON arrays. No markdown. No text. No explanation.
-Output a JSON array of ${slideCount} objects for an Instagram carousel about "${topic}" for developers.
-Each object must have: slide_number, title (UPPERCASE), subtitle, description, bullets (array of 3), visual_suggestion, image_prompt.
-First slide: hook, title includes "${topic}". Middle slides: tools/resources for "${topic}". Last slide: CTA with "${ctaWord}".`,
-        user: `["${topic}" carousel, ${slideCount} slides, style ${template.name}]`,
+Output a JSON array of ${slideCount} objects for an Instagram carousel about "${topic}" for senior developers.
+Each object must have: slide_number, title (Proper Case, highly professional, no clickbait), subtitle, description (1 short sentence max), bullets (array of 3, very short 4-6 words max), visual_suggestion, image_prompt.
+First slide: hook, title includes "${topic}". Middle slides: well-researched, deeply technical resources for "${topic}". Last slide: CTA with "${ctaWord}".`,
+        user: `["${topic}" professional carousel, ${slideCount} slides, deeply researched]`,
       },
     ];
 

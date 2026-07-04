@@ -20,12 +20,14 @@ interface Slide {
 interface CarouselPreviewProps {
   slides: Slide[];
   keyword: string;
+  theme?: string;
   onUpdateSlideImage: (slideIndex: number, url: string) => void;
 }
 
 export default function CarouselPreview({
   slides,
   keyword,
+  theme = "premium-dark",
   onUpdateSlideImage,
 }: CarouselPreviewProps) {
   const [activeSlide, setActiveSlide] = useState(0);
@@ -236,103 +238,134 @@ export default function CarouselPreview({
     const isCuriosity = index === slides.length - 2;
     const isCTA = index === slides.length - 1;
 
+    const isMinimal = theme === "clean-minimal";
+
     return (
       <div
         ref={(el) => {
           slideRefs.current[index] = el;
         }}
-        className="relative w-full aspect-[4/5] bg-[#08080a] text-white flex flex-col justify-between p-10 overflow-hidden border border-zinc-800 select-none"
+        className={`relative w-full aspect-[4/5] flex flex-col overflow-hidden border select-none font-sans ${
+          isMinimal ? "bg-zinc-50 text-zinc-900 border-zinc-200" : "bg-[#0a0a0c] text-white border-zinc-800"
+        }`}
         style={{ width: "100%", maxWidth: "400px", margin: "0 auto" }}
       >
-        {/* Brand Header */}
-        <div className="flex justify-between items-center text-xs tracking-widest text-zinc-500 font-mono uppercase">
-          <span>@sunilcodecraft</span>
-          <span>{index + 1} / {slides.length}</span>
+        {/* Deep Background Layer */}
+        {slide.imageUrl && (
+          <div className="absolute inset-0 z-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={slide.imageUrl} alt="AI Visual" className={`w-full h-full object-cover opacity-50 mix-blend-luminosity ${isMinimal ? "opacity-20" : ""}`} />
+            <div className={`absolute inset-0 bg-gradient-to-b ${isMinimal ? "from-zinc-50/90 via-zinc-50/70 to-zinc-50" : "from-[#0a0a0c]/90 via-[#0a0a0c]/60 to-[#0a0a0c]"}`} />
+            <div className={`absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${isMinimal ? "from-zinc-300/30" : "from-yellow-500/15"} via-transparent to-transparent`} />
+          </div>
+        )}
+        <div className={`absolute inset-0 bg-[linear-gradient(${isMinimal ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.03)"}_1px,transparent_1px),linear-gradient(90deg,${isMinimal ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.03)"}_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0`} />
+
+        {/* --- FIXED HEADER --- */}
+        <div className={`absolute top-8 left-8 right-8 z-20 flex justify-between items-center text-[9px] sm:text-[10px] tracking-widest font-mono uppercase ${isMinimal ? "text-zinc-500" : "text-zinc-400"}`}>
+          <div className="flex items-center space-x-2">
+            <span className={`w-2 h-2 rounded-full shadow-lg ${isMinimal ? "bg-black" : "bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)]"}`}></span>
+            <span className={`font-bold tracking-widest ${isMinimal ? "text-black" : "text-white"}`}>@sunilcodecraft</span>
+          </div>
+          <div className="flex space-x-1">
+            {slides.map((_, i) => (
+              <div key={i} className={`h-1 rounded-full transition-all ${i === index ? (isMinimal ? 'w-4 bg-black' : 'w-4 bg-yellow-400') : (isMinimal ? 'w-1.5 bg-zinc-300' : 'w-1.5 bg-zinc-700')}`} />
+            ))}
+          </div>
         </div>
 
-        {/* Decorative Grid Overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
-
-        {/* Ambient Glows */}
-        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-yellow-500/5 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-yellow-500/5 blur-3xl pointer-events-none" />
-
-        {/* Main Body */}
-        <div className="flex-1 flex flex-col justify-center my-6 z-10">
+        {/* --- CONSTRAINED MAIN BODY --- */}
+        <div className="absolute top-[64px] bottom-[64px] left-8 right-8 z-10 flex flex-col justify-center">
+          
           {/* Subtitle / Category Pill */}
           {slide.subtitle && (
-            <div className="mb-4">
-              <span className="px-3 py-1 text-[10px] font-bold tracking-widest uppercase bg-yellow-400/10 text-yellow-400 border border-yellow-400/20 rounded-full">
+            <div className="mb-5">
+              <span className={`inline-block px-3 py-1.5 text-[9px] sm:text-[10px] font-bold tracking-widest uppercase rounded-full backdrop-blur-md ${
+                isMinimal 
+                  ? "bg-zinc-900/5 text-zinc-800 border border-zinc-900/10 shadow-sm"
+                  : "bg-yellow-400/10 text-yellow-400 border border-yellow-400/30 shadow-[0_0_20px_rgba(250,204,21,0.15)]"
+              }`}>
                 {slide.subtitle}
               </span>
             </div>
           )}
 
-          {/* Title */}
-          <h2 className={`font-extrabold uppercase leading-none tracking-tight text-white mb-4 ${isHook ? 'text-4xl' : 'text-2xl'}`}>
-            {slide.title.split(" ").map((word, idx) => {
-              const highlight = word.toUpperCase() === "ILLEGAL" || word.toUpperCase() === "CHEATING" || word.toUpperCase() === "SECRET" || word.toUpperCase() === "AI" || word.toUpperCase() === "FREE";
-              return (
-                <span key={idx} className={highlight ? "text-yellow-400 text-glow" : ""}>
-                  {word}{" "}
-                </span>
-              );
-            })}
+          {/* Consistent Premium Title for all slides */}
+          <h2 className={`
+            font-black leading-[1.1] tracking-tight mb-6
+            ${isHook ? 'text-[2rem] sm:text-[2.25rem]' : 'text-xl sm:text-2xl'}
+            ${isMinimal 
+              ? 'bg-gradient-to-br from-zinc-900 via-zinc-700 to-zinc-500 bg-clip-text text-transparent' 
+              : 'bg-gradient-to-br from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent'
+            }
+          `}>
+            {slide.title}
           </h2>
 
-          {/* Description */}
-          <p className="text-zinc-300 text-sm leading-relaxed mb-6 font-normal">
-            {slide.description}
-          </p>
+          {/* Glassmorphism Card for Description & Bullets */}
+          {(slide.description || (slide.bullets && slide.bullets.length > 0)) && !isCTA && (
+            <div className={`backdrop-blur-xl border rounded-2xl p-5 shadow-2xl relative overflow-hidden ${
+              isMinimal 
+                ? "bg-white/80 border-black/10 shadow-black/5" 
+                : "bg-zinc-950/60 border-white/10"
+            }`}>
+              {/* Card inner glow */}
+              <div className={`absolute inset-0 bg-gradient-to-b ${isMinimal ? "from-black/5" : "from-white/5"} to-transparent pointer-events-none`} />
+              
+              {slide.description && (
+                <p className={`relative text-xs sm:text-sm leading-relaxed font-medium ${isMinimal ? "text-zinc-700" : "text-zinc-300"}`}>
+                  {slide.description}
+                </p>
+              )}
 
-          {/* Bullets or Mock Visual Elements */}
-          {slide.bullets && slide.bullets.length > 0 && (
-            <ul className="space-y-3">
-              {slide.bullets.map((bullet, bIdx) => (
-                <li key={bIdx} className="flex items-start text-xs text-zinc-200 leading-normal">
-                  <span className="text-yellow-400 mr-2 mt-0.5 font-bold">✓</span>
-                  <span>{bullet}</span>
-                </li>
-              ))}
-            </ul>
+              {slide.bullets && slide.bullets.length > 0 && (
+                <div className={`relative ${slide.description ? `mt-4 pt-4 border-t ${isMinimal ? "border-black/10" : "border-white/10"}` : ""}`}>
+                  <ul className="space-y-3">
+                    {slide.bullets.map((bullet, bIdx) => (
+                      <li key={bIdx} className={`flex items-start text-[10px] sm:text-[11px] font-medium leading-relaxed ${isMinimal ? "text-zinc-800" : "text-zinc-100"}`}>
+                        <div className={`mt-0.5 mr-3 flex-shrink-0 w-3.5 h-3.5 rounded-full flex items-center justify-center border ${
+                          isMinimal ? "bg-black/10 border-black/20" : "bg-yellow-400/20 border-yellow-400/50"
+                        }`}>
+                          <span className={`text-[8px] font-black ${isMinimal ? "text-black" : "text-yellow-400"}`}>✓</span>
+                        </div>
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           )}
 
-          {/* Special Visual Render for Slide Types */}
+          {/* Special Visual Render for CTA */}
           {isCTA && (
-            <div className="mt-8 border border-zinc-800 bg-zinc-900/60 rounded-xl p-4 flex items-center justify-between shadow-lg">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center font-bold text-black text-sm">
-                  S
-                </div>
+            <div className={`mt-2 border rounded-2xl p-5 flex items-center justify-between backdrop-blur-xl relative overflow-hidden shadow-2xl ${
+              isMinimal 
+                ? "bg-white/80 border-black/10 shadow-black/5" 
+                : "bg-zinc-950/60 border-white/10"
+            }`}>
+              {/* Card inner glow */}
+              <div className={`absolute inset-0 bg-gradient-to-b ${isMinimal ? "from-black/5" : "from-white/5"} to-transparent pointer-events-none`} />
+              <div className="relative flex items-center space-x-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/brand-avatar.jpg" alt="Brand Avatar" className={`w-12 h-12 rounded-full border-2 object-cover ${
+                  isMinimal ? "border-zinc-300 shadow-sm" : "border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.5)]"
+                }`} />
                 <div>
-                  <p className="text-[10px] text-zinc-500 font-mono">SENDING RESOURCES</p>
-                  <p className="text-xs font-bold text-white">Comment "{keyword || "CODE"}"</p>
+                  <p className={`text-[9px] font-mono tracking-widest uppercase mb-1 ${isMinimal ? "text-zinc-500" : "text-zinc-400"}`}>Get the resource pack</p>
+                  <p className={`text-sm font-black tracking-wide ${isMinimal ? "text-black" : "text-white"}`}>Comment "{keyword || "CODE"}"</p>
                 </div>
               </div>
-              <span className="px-3 py-1 bg-yellow-400 text-black text-[10px] font-bold rounded-lg animate-pulse">
-                SENDING DM
-              </span>
             </div>
           )}
         </div>
 
-        {/* AI Background Image */}
-        {slide.imageUrl && (
-          <div className="absolute inset-0 z-0 opacity-30 pointer-events-none">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={slide.imageUrl} alt="AI Visual" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#08080a] via-[#08080a]/70 to-[#08080a]/40" />
-          </div>
-        )}
-        {/* Image loading placeholder */}
-        {!slide.imageUrl && (
-          <div className="absolute inset-0 z-0 opacity-10 pointer-events-none bg-[radial-gradient(ellipse_at_center,_#eab308_0%,_transparent_70%)]" />
-        )}
-
-        {/* Footer */}
-        <div className="flex justify-between items-center text-[10px] text-zinc-500 z-10">
-          <span className="font-semibold text-yellow-400/60 font-mono">DEVELOPER ROADMAP</span>
-          <span className="tracking-wide font-mono">SWIPE ➔</span>
+        {/* --- FIXED FOOTER --- */}
+        <div className={`absolute bottom-8 left-8 right-8 z-20 flex justify-between items-center text-[9px] font-bold uppercase tracking-widest border-t pt-4 ${
+          isMinimal ? "text-zinc-500 border-zinc-200" : "text-zinc-600 border-zinc-800/50"
+        }`}>
+          <span className={isMinimal ? "text-zinc-500" : "text-zinc-500"}>SAVE FOR LATER 📌</span>
+          <span className={isMinimal ? "text-black" : "text-yellow-400/80"}>SWIPE ➔</span>
         </div>
       </div>
     );
@@ -341,60 +374,63 @@ export default function CarouselPreview({
   return (
     <div className="space-y-6">
       {/* Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-zinc-900/40 border border-zinc-800 rounded-xl">
-        <div className="flex items-center space-x-2">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-zinc-950/60 backdrop-blur-2xl border border-white/5 rounded-3xl shadow-xl">
+        <div className="flex items-center space-x-2 bg-black/40 p-1.5 rounded-xl border border-white/5">
           <button
             onClick={() => setViewMode("single")}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+            className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all flex items-center ${
               viewMode === "single"
-                ? "bg-yellow-400 text-black shadow-lg"
-                : "bg-zinc-800 text-zinc-400 hover:text-white"
+                ? "bg-zinc-800 text-white shadow-md"
+                : "bg-transparent text-zinc-500 hover:text-zinc-300"
             }`}
           >
-            <Eye className="w-3.5 h-3.5 inline mr-1.5" />
+            <Eye className="w-3.5 h-3.5 mr-1.5" />
             Single Slide
           </button>
           <button
             onClick={() => setViewMode("deck")}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+            className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all flex items-center ${
               viewMode === "deck"
-                ? "bg-yellow-400 text-black shadow-lg"
-                : "bg-zinc-800 text-zinc-400 hover:text-white"
+                ? "bg-zinc-800 text-white shadow-md"
+                : "bg-transparent text-zinc-500 hover:text-zinc-300"
             }`}
           >
-            <ImageIcon className="w-3.5 h-3.5 inline mr-1.5" />
+            <ImageIcon className="w-3.5 h-3.5 mr-1.5" />
             Deck View
           </button>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Download All PNGs — primary CTA */}
           <button
             disabled={isExporting}
             onClick={exportAllPngs}
-            className="px-4 py-1.5 text-xs bg-yellow-400 hover:bg-yellow-300 text-black font-extrabold rounded-lg transition-all flex items-center space-x-1.5 disabled:opacity-50 shadow-lg shadow-yellow-500/20"
+            className="px-5 py-2.5 text-[10px] uppercase tracking-widest bg-yellow-400 hover:bg-yellow-300 text-black font-black rounded-xl transition-all flex items-center space-x-2 disabled:opacity-50 shadow-lg shadow-yellow-500/20 whitespace-nowrap"
           >
-            <Package className="w-3.5 h-3.5" />
+            <Package className="w-4 h-4" />
             <span>{isExporting && exportProgress ? exportProgress : `Download All ${slides.length} PNGs`}</span>
           </button>
-          <button
-            disabled={isExporting}
-            onClick={() => exportSlidePng(activeSlide)}
-            className="px-3 py-1.5 text-xs bg-zinc-800 hover:bg-zinc-700 text-white font-semibold rounded-lg transition-all flex items-center space-x-1.5 disabled:opacity-50"
-            title="Export current slide only"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>PNG</span>
-          </button>
-          <button
-            disabled={isExporting}
-            onClick={exportAllPdf}
-            className="px-3 py-1.5 text-xs bg-zinc-800 hover:bg-zinc-700 text-white font-semibold rounded-lg transition-all flex items-center space-x-1.5 disabled:opacity-50"
-            title="Export all slides as PDF"
-          >
-            <FileText className="w-3.5 h-3.5" />
-            <span>PDF</span>
-          </button>
+          
+          <div className="flex space-x-1 bg-black/40 p-1.5 rounded-xl border border-white/5 shrink-0">
+            <button
+              disabled={isExporting}
+              onClick={() => exportSlidePng(activeSlide)}
+              className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-all flex items-center space-x-1 disabled:opacity-50"
+              title="Export current slide only"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>PNG</span>
+            </button>
+            <button
+              disabled={isExporting}
+              onClick={exportAllPdf}
+              className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-all flex items-center space-x-1 disabled:opacity-50"
+              title="Export all slides as PDF"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>PDF</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -404,7 +440,11 @@ export default function CarouselPreview({
         <div className="flex flex-col items-center justify-center space-y-4">
           <div className="relative w-full max-w-[400px] border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl bg-zinc-950">
             {slides.map((slide, idx) => (
-              <div key={idx} style={{ display: idx === activeSlide ? "block" : "none" }}>
+              <div 
+                key={idx} 
+                className={idx === activeSlide ? "relative z-10 w-full" : "absolute inset-0 z-0 opacity-0 pointer-events-none"}
+                aria-hidden={idx !== activeSlide}
+              >
                 {renderSlideContent(slide, idx)}
               </div>
             ))}
@@ -456,10 +496,13 @@ export default function CarouselPreview({
 
       ) : (
         /* Full Deck Overview */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8 max-w-full">
           {slides.map((slide, idx) => (
-            <div key={idx} className="relative group border border-zinc-800 rounded-xl overflow-hidden bg-zinc-950 shadow-lg">
-              {renderSlideContent(slide, idx)}
+            <div key={idx} className="relative group border border-white/5 rounded-2xl overflow-hidden bg-black shadow-lg aspect-[4/5] @container">
+              {/* Force the physical render to 400x500 and perfectly scale it down via CSS container queries */}
+              <div className="w-[400px] h-[500px] origin-top-left" style={{ transform: 'scale(calc(100cqw / 400))' }}>
+                {renderSlideContent(slide, idx)}
+              </div>
               <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2 z-20">
                 <button
                   onClick={() => generateSlideImage(idx)}

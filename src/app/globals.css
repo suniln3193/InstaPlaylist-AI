@@ -20,6 +20,10 @@
 
 body {
   background-color: var(--background);
+  background-image: 
+    radial-gradient(circle at 50% -20%, rgba(250, 204, 21, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 0% 100%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
+  background-attachment: fixed;
   color: var(--foreground);
   overflow-x: hidden;
 }
@@ -65,4 +69,13 @@ body {
 
 .text-glow {
   text-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@utility animate-shimmer {
+  animation: shimmer 3s infinite linear;
 }
